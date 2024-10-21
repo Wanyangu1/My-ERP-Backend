@@ -2,6 +2,13 @@
 from rest_framework import serializers
 from .models import Course, Module, Content
 from django.contrib.auth.models import User
+from django.contrib.auth.models import User  # or your custom User model
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']  # Add other fields you want to expose
+
 
 class ContentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,15 +22,21 @@ class ModuleSerializer(serializers.ModelSerializer):
         model = Module
         fields = '__all__'
 
-class CourseSerializer(serializers.ModelSerializer):
-    modules = ModuleSerializer(many=True, read_only=True)
+class CourseCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['title', 'description']
+
+class CourseListSerializer(serializers.ModelSerializer):
+    teacher = serializers.StringRelatedField()  
 
     class Meta:
         model = Course
         fields = '__all__'
+        
 
 class UserSerializer(serializers.ModelSerializer):
-    courses = CourseSerializer(many=True, read_only=True)
+    courses = CourseListSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
